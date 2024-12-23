@@ -1,18 +1,23 @@
 'use client'
 
 import {Badge, Group, ScrollArea, Stack, Text} from "@mantine/core";
-import {Mailing, MailingStatus} from "@prisma/client";
+import {Mailing, MailingStatus, Profile} from "@prisma/client";
 import useSWR from "swr";
 import {useCallback} from "react";
 import {MESSAGES_STATUS} from "@/types/swr-responses";
 import ModalGroupsList from "@/components/home/detail-modal/ModalGroupsList";
+import {formatDistance} from "date-fns/formatDistance";
+import {ru as ruLocale} from "date-fns/locale/ru";
 
 type Props = {
     recipients: { groupOid: number, name: string }[],
     id: Mailing['id'],
     status: Mailing['status']
     failed: Mailing['failed'],
-    total: Mailing['total']
+    total: Mailing['total'],
+    sender: Profile,
+    createdAt: Mailing['createdAt'],
+    statusChangedAt: Mailing['statusChangedAt']
 }
 
 const statusText = {
@@ -21,7 +26,7 @@ const statusText = {
     [MailingStatus.CANCELLED]: 'Отменено',
 }
 
-export default function MailingDetailsModal({recipients, status, failed, total, id}: Props) {
+export default function MailingDetailsModal({recipients, status, failed, total, id,statusChangedAt,sender,createdAt}: Props) {
     const {data, isLoading} = useSWR<MESSAGES_STATUS>(
             `/api/messages/status`,
             {refreshInterval: 5 * 1000}
@@ -45,6 +50,7 @@ export default function MailingDetailsModal({recipients, status, failed, total, 
                                     ? 'green' : status === 'CANCELLED'
                                             ? 'red' : 'brand'}
                     >{statusText[status]}</Badge></Text>
+                    <Text title={sender.email}>Отправитель: {sender.email?.split('@')[0]}</Text>
                     {getTotal() > 0 && <Text>Всего получателей: {getTotal()}</Text>}
                     {status === 'COMPLETED'
                             && getTotal() > 0
@@ -52,6 +58,12 @@ export default function MailingDetailsModal({recipients, status, failed, total, 
                                 <Text>Успешных отправок: {getSuccess()}</Text>
                                 <Badge autoContrast>{(getSuccess() / getTotal() * 100).toFixed(1)}%</Badge>
                             </Group>}
+                    <Text>Дата и время отправки: {new Date(createdAt).toLocaleString('ru', {})}</Text>
+                    {statusChangedAt.getTime() !== createdAt.getTime()
+                            && <Text>Продолжительность рассылки: {formatDistance(statusChangedAt, createdAt, {
+                                includeSeconds: true,
+                                locale: ruLocale
+                            })}</Text>}
                 </Stack>}
 
         <ModalGroupsList recipients={recipients} id={id}/>

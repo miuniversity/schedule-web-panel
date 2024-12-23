@@ -68,6 +68,9 @@ export function MessagesListItem({recipients, sender, data}: Props) {
                                         status={data.status}
                                         total={data.total}
                                         failed={data.failed}
+                                        statusChangedAt={data.statusChangedAt}
+                                        createdAt={data.createdAt}
+                                        sender={sender}
                                 />
                             })
                         }}>
