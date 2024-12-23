@@ -6,7 +6,8 @@ import useSWR from "swr";
 import {useCallback} from "react";
 import {MESSAGES_STATUS} from "@/types/swr-responses";
 import ModalGroupsList from "@/components/home/detail-modal/ModalGroupsList";
-import {formatDistance} from "date-fns/formatDistance";
+import {formatDuration} from "date-fns/formatDuration";
+import {intervalToDuration} from "date-fns/intervalToDuration";
 import {ru as ruLocale} from "date-fns/locale/ru";
 
 type Props = {
@@ -59,11 +60,16 @@ export default function MailingDetailsModal({recipients, status, failed, total, 
                                 <Badge autoContrast>{(getSuccess() / getTotal() * 100).toFixed(1)}%</Badge>
                             </Group>}
                     <Text>Дата и время отправки: {new Date(createdAt).toLocaleString('ru', {})}</Text>
-                    {statusChangedAt.getTime() !== createdAt.getTime()
-                            && <Text>Продолжительность рассылки: {formatDistance(statusChangedAt, createdAt, {
-                                includeSeconds: true,
-                                locale: ruLocale
-                            })}</Text>}
+                    {statusChangedAt && new Date(statusChangedAt).getTime() > new Date(createdAt).getTime()
+                            && <Text>Продолжительность рассылки: {formatDuration(
+                                    intervalToDuration({
+                                        start: createdAt,
+                                        end: statusChangedAt
+                                    }),
+                                    {
+                                        locale: ruLocale
+                                    }
+                            )}</Text>}
                 </Stack>}
 
         <ModalGroupsList recipients={recipients} id={id}/>
