@@ -16,8 +16,8 @@ services:
       - POSTGRES_USER=$POSTGRES_USER
       - POSTGRES_PASSWORD=$POSTGRES_PASSWD
       - POSTGRES_DB=$POSTGRES_DATABASE
-    #ports:
-    #  - "5432:5432"
+    ports:
+      - "5432:5432"
     volumes:
       - ./pgdata:/var/lib/postgresql/data
     networks:

@@ -7,6 +7,6 @@ COPY package.json yarn.lock .yarnrc.yml ./
 RUN yarn set version berry
 RUN yarn
 COPY . .
-RUN npx prisma generate
+RUN yarn dlx prisma generate
 EXPOSE 3000
 CMD ["yarn", "dev"]
