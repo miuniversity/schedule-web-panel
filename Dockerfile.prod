@@ -9,8 +9,8 @@ RUN yarn install --immutable
 FROM node:20.1.0-alpine AS builder
 WORKDIR /app
 RUN corepack enable
-COPY . .
 COPY --from=dependencies /app/node_modules ./node_modules
+COPY . .
 RUN yarn set version berry
 RUN yarn dlx prisma migrate deploy
 RUN yarn dlx prisma generate
