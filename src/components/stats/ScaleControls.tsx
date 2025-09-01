@@ -16,10 +16,10 @@ export function ScaleControls({currentValue}: Props) {
     const [scale, setScale] = useState<string>(currentValue || "7")
     const [variants, setVariants] = useState([
         {
-            label: 'Неделю',
+            label: '7 дней',
             value: '7'
         }, {
-            label: 'Месяц',
+            label: '30 дней',
             value: '30'
         }
     ])
