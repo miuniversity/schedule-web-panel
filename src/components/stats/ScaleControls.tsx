@@ -35,7 +35,7 @@ export function ScaleControls({currentValue}: Props) {
     useEffect(() => {
         if (scale && !variants.some(v => String(v.value) == scale)) {
             setVariants(vs => [...vs, {
-                label: `${scale} дн.`,
+                label: `${scale} д.`,
                 value: scale
             }])
         }
