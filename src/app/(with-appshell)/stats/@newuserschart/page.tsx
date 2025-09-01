@@ -138,6 +138,8 @@ export default async function NewUsersChartPage(props: Props) {
                         {name: NEW_USERS_PER_DAY_LABEL, color: 'brand'}
                     ]}
                     curveType="monotone"
+                    tooltipAnimationDuration={200}
+                    fillOpacity={0.8}
             />
             <Group>
                 <AvgLineViewControl currentValue={props.searchParams?.avg === 'show'}/>
