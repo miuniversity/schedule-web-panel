@@ -6,13 +6,13 @@ import {comparePassword, hashPassword} from "@/utils/hashPassword";
 import checkSession from "@/utils/checkSession";
 
 const editUserSchema = z.object({
-    email: z.string().email(),
+    email: z.email(),
     new_password: z.string().trim().min(5).optional(),
     password: z.string().optional(),
     role: z.enum([Role.USER, Role.ADMIN]).optional(),
 })
 
-export async function PATCH(req: Request, {params}: { params: { id: string } }) {
+export async function PATCH(req: Request, ctx: RouteContext<'/api/users/[id]'>) {
     try {
         const session = await checkSession()
         if (!session.data) {
@@ -20,6 +20,7 @@ export async function PATCH(req: Request, {params}: { params: { id: string } }) 
         }
 
         const body = await req.json()
+        const params = await ctx.params
 
         const {email, new_password, password, role} = editUserSchema.parse(body)
 
