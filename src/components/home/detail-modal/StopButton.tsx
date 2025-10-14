@@ -10,7 +10,7 @@ export function StopButton() {
     const onClick = useCallback(() => {
         setIsLoading(true)
 
-        fetch('/api/messages/stop', { method: 'POST' })
+        fetch('/api/messages/abort', { method: 'POST' })
                 .then(res => {
                     if (!res.ok) {
                         console.error(res)
