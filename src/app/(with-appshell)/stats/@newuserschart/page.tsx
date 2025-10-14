@@ -1,29 +1,33 @@
-import {addDays, endOfDay, format, startOfDay} from "date-fns";
-import {UsersCountResponse} from "@/types/stats";
-import {Button, ButtonGroup, Group, NumberFormatter, Paper, Stack, Text} from "@mantine/core";
-import endingByNum from "@/utils/endingByNum";
-import {ScaleControls} from "@/components/stats/ScaleControls";
-import {ru as ruLocale} from "date-fns/locale/ru";
 import Link from "next/link";
-import {AreaChart} from "@mantine/charts";
+import { Button, ButtonGroup, Group, NumberFormatter, Paper, Stack, Text } from "@mantine/core";
+import { AreaChart } from "@mantine/charts";
+import { IconArrowForward, IconArrowLeft, IconArrowRight } from "@tabler/icons-react";
+import { addDays, endOfDay, format, startOfDay } from "date-fns";
+import { ru as ruLocale } from "date-fns/locale/ru";
+
+import endingByNum from "@/utils/endingByNum";
 import calcAvgValue from "@/utils/calcAvgValue";
-import {AvgLineViewControl} from "@/components/stats/AvgLineViewControl";
-import {IconArrowForward, IconArrowLeft, IconArrowRight} from "@tabler/icons-react";
+
+import { ScaleControls } from "@/components/stats/ScaleControls";
+import { AvgLineViewControl } from "@/components/stats/AvgLineViewControl";
+
+import { UsersCountResponse } from "@/types/stats";
 
 type Props = {
-    searchParams: Record<string, string>
+    searchParams: Promise<Record<string, string>>
 }
 
-const MAX_DAYS_PER_REQUEST = 90,
+const MAX_DAYS_PER_REQUEST = 30 /*месяц*/ * 6,
         DEFAULT_DAYS_PER_REQUEST = 7
 const NEW_USERS_PER_DAY_LABEL = 'Новых пользователей'
 
 export default async function NewUsersChartPage(props: Props) {
-    const days = (+props.searchParams.days > MAX_DAYS_PER_REQUEST ? MAX_DAYS_PER_REQUEST : +props.searchParams.days) || DEFAULT_DAYS_PER_REQUEST
-    const selectedDate = new Date(props.searchParams.date || Date.now())
+    const searchParams = await props.searchParams;
+    const days = (+searchParams.days > MAX_DAYS_PER_REQUEST ? MAX_DAYS_PER_REQUEST : +searchParams.days) || DEFAULT_DAYS_PER_REQUEST
+    const selectedDate = new Date(searchParams.date || Date.now())
 
     const dates = Array
-            .from({length: days}, (_, index) => startOfDay(addDays(selectedDate, -index * (!!JSON.parse(props.searchParams.next || "0") ? -1 : 1))))
+            .from({ length: days }, (_, index) => startOfDay(addDays(selectedDate, -index * (!!JSON.parse(searchParams.next || "0") ? -1 : 1))))
             .toSorted((a, b) => a.getTime() - b.getTime())
 
 
@@ -32,24 +36,23 @@ export default async function NewUsersChartPage(props: Props) {
     statsSearchParams.set('date', selectedDate.toISOString())
     statsSearchParams.set('days', String(days))
 
-    if (!!JSON.parse(props.searchParams.next || "0")) {
+    if (!!JSON.parse(searchParams.next || "0")) {
         statsSearchParams.set('dir', 'next')
     }
 
     const stats: {
         payload: any,
         data: UsersCountResponse
-    } = await fetch(`${process.env.BOT_API_HOST}/info/users/count?${statsSearchParams.toString()}`, {
+    } = await fetch(`${ process.env.BOT_API_HOST }/info/users/count?${ statsSearchParams.toString() }`, {
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${process.env.BOT_AUTH_TOKEN}`,
+            'Authorization': `Bearer ${ process.env.BOT_AUTH_TOKEN }`,
         }
-    })
-            .then(i => i.json())
+    }).then(i => i.json())
 
     const getPeriodHref = (date: Date, days: number) => {
         const row = ['/stats']
-        const sp = new URLSearchParams(props.searchParams)
+        const sp = new URLSearchParams(searchParams)
         if (days) {
             let new_date = addDays(date, days)
             if (new_date.getTime() > endOfDay(Date.now()).getTime()) new_date = new Date()
@@ -60,36 +63,43 @@ export default async function NewUsersChartPage(props: Props) {
         sp.size && row.push(sp.toString())
         return row.join('?')
     }
-    return <Paper withBorder p={'sm'}>
-        <Stack gap={'lg'}>
-            <Group justify={'space-between'}>
-                <Group gap={'xs'} align={'center'}>
+
+    const avgValue = (() => (
+            calcAvgValue(dates.map(d => stats.data.details.find(j =>
+                    format(j.date, 'yyyy-MM-dd') === format(d, 'yyyy-MM-dd')
+            )?.groups.reduce((acc, cur) => acc + cur.count, 0) || 0))
+    ))()
+
+    return <Paper withBorder p={ 'sm' }>
+        <Stack gap={ 'lg' }>
+            <Group justify={ 'space-between' }>
+                <Group gap={ 'xs' } align={ 'center' }>
                     <Text>
-                        <NumberFormatter value={stats.data.total_count} thousandSeparator=" " decimalScale={2}
-                                         decimalSeparator="."/> {endingByNum(stats.data.total_count, ['новый пользователь', "новых пользователя", "новых пользователей"])} за
+                        <NumberFormatter value={ stats.data.total_count } thousandSeparator=" " decimalScale={ 2 }
+                                         decimalSeparator="."/> { endingByNum(stats.data.total_count, ['новый пользователь', "новых пользователя", "новых пользователей"]) } за
                     </Text>
-                    <ScaleControls currentValue={props.searchParams.days}/>
+                    <ScaleControls currentValue={ searchParams.days }/>
                 </Group>
-                <Group wrap={'wrap-reverse'}>
-                    <Text size={'sm'}
-                          title={"Точка отсчёта"}>{format(new Date(dates[dates.length - 1]), 'dd MMM yyyy', {locale: ruLocale})}</Text>
+                <Group wrap={ 'wrap-reverse' }>
+                    <Text size={ 'sm' }
+                          title={ "Точка отсчёта" }>{ format(new Date(dates[dates.length - 1]), 'dd MMM yyyy', { locale: ruLocale }) }</Text>
                     <ButtonGroup>
-                        {[
+                        { [
                             {
-                                label: <IconArrowLeft size={'1rem'}/>,
+                                label: <IconArrowLeft size={ '1rem' }/>,
                                 title: "Предыдущий период",
                                 date: selectedDate,
                                 days: -days,
                             },
                             {
-                                label: <IconArrowRight size={'1rem'}/>,
+                                label: <IconArrowRight size={ '1rem' }/>,
                                 title: "Следующий период",
                                 date: selectedDate,
                                 days: days,
                                 disabled: endOfDay(selectedDate).getTime() >= endOfDay(new Date()).getTime()
                             },
                             {
-                                label: <IconArrowForward size={'1rem'}/>,
+                                label: <IconArrowForward size={ '1rem' }/>,
                                 title: "Сброс",
                                 date: new Date(),
                                 days: 0,
@@ -97,22 +107,22 @@ export default async function NewUsersChartPage(props: Props) {
                             },
                         ].map(i => (
                                 <Button
-                                        key={i.title}
-                                        component={Link}
-                                        href={getPeriodHref(i.date, i.days)}
-                                        title={i.title}
-                                        size={'xs'}
-                                        variant={'subtle'}
-                                        disabled={i.disabled}
+                                        key={ i.title }
+                                        component={ Link }
+                                        href={ getPeriodHref(i.date, i.days) }
+                                        title={ i.title }
+                                        size={ 'xs' }
+                                        variant={ 'subtle' }
+                                        disabled={ i.disabled }
                                         replace
-                                        prefetch={false}
-                                >{i.label}</Button>
-                        ))}
+                                        prefetch={ false }
+                                >{ i.label }</Button>
+                        )) }
                     </ButtonGroup>
                 </Group>
             </Group>
             <AreaChart
-                    h={300}
+                    h={ 300 }
                     data={
                         dates.map(d => ({
                             date: format(d, 'dd.MM.yyyy'),
@@ -123,26 +133,24 @@ export default async function NewUsersChartPage(props: Props) {
                     }
                     dataKey="date"
                     connectNulls
-                    referenceLines={props.searchParams?.avg === 'show'
+                    referenceLines={ searchParams?.avg === 'show'
                             ? [
                                 {
-                                    y: calcAvgValue(dates.map(d => stats.data.details.find(j =>
-                                            format(j.date, 'yyyy-MM-dd') === format(d, 'yyyy-MM-dd')
-                                    )?.groups.reduce((acc, cur) => acc + cur.count, 0) || 0)),
-                                    label: 'Среднее значение',
+                                    y: avgValue,
+                                    label: `Среднее значение - ${ avgValue }`,
                                     color: 'red'
                                 }
                             ]
-                            : undefined}
-                    series={[
-                        {name: NEW_USERS_PER_DAY_LABEL, color: 'brand'}
-                    ]}
+                            : undefined }
+                    series={ [
+                        { name: NEW_USERS_PER_DAY_LABEL, color: 'brand' }
+                    ] }
                     curveType="monotone"
-                    tooltipAnimationDuration={200}
-                    fillOpacity={0.8}
+                    tooltipAnimationDuration={ 200 }
+                    fillOpacity={ 0.8 }
             />
             <Group>
-                <AvgLineViewControl currentValue={props.searchParams?.avg === 'show'}/>
+                <AvgLineViewControl currentValue={ searchParams?.avg === 'show' }/>
             </Group>
         </Stack>
     </Paper>

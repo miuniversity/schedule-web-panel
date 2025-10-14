@@ -10,9 +10,7 @@ export async function GET(req: Request) {
             return NextResponse.json(session.error, {status: session.status})
         }
 
-
         const url = new URL(req.url)
-
 
         if (!url.searchParams.has('groups') || url.searchParams.get('groups')?.split(',').length === 0) {
             return NextResponse.json({message: 'Неверные данные'}, {status: 400})
@@ -30,7 +28,6 @@ export async function GET(req: Request) {
                 'Authorization': `Bearer ${process.env.BOT_AUTH_TOKEN}`,
             }
         })
-
 
         if (!res?.ok) {
             console.error(res)
