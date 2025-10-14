@@ -1,9 +1,9 @@
-import {Container} from "@mantine/core";
-import {FormLayout} from "@/layouts";
-import {getServerSession} from "next-auth";
-import {authOptions} from "@/lib/auth";
-import {redirect} from "next/navigation";
-import {PAGE_LINKS} from "@/constants/page-links";
+import { Container } from "@mantine/core";
+import { FormLayout } from "@/layouts";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { PAGE_LINKS } from "@/constants/page-links";
 import dynamic from "next/dynamic";
 
 const LoginForm = dynamic(() => import("@/components/login/LoginForm"))
@@ -15,15 +15,16 @@ async function fetchRequest(token: string) {
 }
 
 
-async function LoginPage(props: { searchParams: { token?: string } }) {
+async function LoginPage(props: { searchParams: Promise<{ token?: string }> }) {
     const session = await getServerSession(authOptions)
+    const searchParams = await props.searchParams
 
     if (!!session?.user) {
         redirect(PAGE_LINKS.HOME)
     }
 
-    if (props.searchParams.token) {
-        const {data, status} = await fetchRequest(props.searchParams.token)
+    if (searchParams.token) {
+        const {data, status} = await fetchRequest(searchParams.token)
         if (!status) {
             redirect(PAGE_LINKS.LOGIN + (data?.message ? `?message=${encodeURIComponent(data.message)}&messageColor=red` : ''))
         }
@@ -33,7 +34,7 @@ async function LoginPage(props: { searchParams: { token?: string } }) {
             <Container p={'xl'}>
                 <FormLayout>
                     {
-                        !!props.searchParams.token
+                        !!searchParams.token
                                 ? <CreatePasswordForm/>
                                 : <LoginForm/>
                     }

@@ -9,8 +9,9 @@ import { Profile } from "@prisma/client";
 import db from "@/lib/db";
 
 
-export default async function ProfilePage(props: { searchParams: { id?: string } }) {
+export default async function ProfilePage(props: { searchParams: Promise<{ id?: string }> }) {
     const session = await getServerSession(authOptions)
+    const searchParams = await props.searchParams
 
     if (!session) {
         return redirect(PAGE_LINKS.LOGIN)
@@ -18,26 +19,26 @@ export default async function ProfilePage(props: { searchParams: { id?: string }
 
     let user: Profile | null = null
 
-    if (props.searchParams.id) {
+    if (searchParams.id) {
         if (session.user.role !== 'ADMIN') {
             redirect(PAGE_LINKS.PROFILE)
         }
 
-        user = await db.profile.findUnique({where: {id: props.searchParams.id}})
+        user = await db.profile.findUnique({ where: { id: searchParams.id } })
         if (!user || user.id === session.user.id) {
             redirect(PAGE_LINKS.PROFILE)
         }
     }
 
-    return <Container p={'md'}>
+    return <Container p={ 'md' }>
         <FormLayout>
             <EditProfileForm
-                initValues={{
-                    email: user ? user.email : session.user.email as string,
-                    role: user ? user.Role : session.user.role,
-                }}
-                id={user ? user.id : session.user.id}
-                isSameProfile={!user}
+                    initValues={ {
+                        email: user ? user.email : session.user.email as string,
+                        role: user ? user.Role : session.user.role,
+                    } }
+                    id={ user ? user.id : session.user.id }
+                    isSameProfile={ !user }
             />
         </FormLayout>
     </Container>

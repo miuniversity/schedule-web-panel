@@ -1,11 +1,11 @@
-import {getServerSession} from "next-auth";
-import {authOptions} from "@/lib/auth";
-import {redirect} from "next/navigation";
-import {PAGE_LINKS} from "@/constants/page-links";
-import {Container} from "@mantine/core";
-import {FormLayout} from "@/layouts";
-import {RecoveryForm} from "@/components/recovery/RecoveryForm";
-import {ChangePasswordForm} from "@/components/recovery/ChangePasswordForm";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { PAGE_LINKS } from "@/constants/page-links";
+import { Container } from "@mantine/core";
+import { FormLayout } from "@/layouts";
+import { RecoveryForm } from "@/components/recovery/RecoveryForm";
+import { ChangePasswordForm } from "@/components/recovery/ChangePasswordForm";
 
 async function fetchRecovery(token: string) {
     const resRecovery = await fetch(process.env.NEXTAUTH_URL + '/api/recovery?token=' + token)
@@ -13,8 +13,9 @@ async function fetchRecovery(token: string) {
 }
 
 
-async function RecoveryPage(props: { searchParams: { token?: string } }) {
+async function RecoveryPage(props: { searchParams: Promise<{ token?: string }> }) {
     const session = await getServerSession(authOptions)
+    const searchParams = await props.searchParams
 
     if (!!session?.user) {
         redirect(PAGE_LINKS.HOME)
@@ -22,8 +23,8 @@ async function RecoveryPage(props: { searchParams: { token?: string } }) {
 
     let userEmail = '';
 
-    if (props.searchParams.token) {
-        const {data, status} = await fetchRecovery(props.searchParams.token)
+    if (searchParams.token) {
+        const {data, status} = await fetchRecovery(searchParams.token)
         if (!status) {
             redirect(PAGE_LINKS.LOGIN + (data?.message ? `?message=${encodeURIComponent(data.message)}&messageColor=red` : ''))
         }
@@ -34,8 +35,8 @@ async function RecoveryPage(props: { searchParams: { token?: string } }) {
             <Container p={'xl'}>
                 <FormLayout>
                     {
-                        !!props.searchParams.token
-                                ? <ChangePasswordForm email={userEmail} token={props.searchParams.token}/>
+                        !!searchParams.token
+                                ? <ChangePasswordForm email={userEmail} token={searchParams.token}/>
                                 : <RecoveryForm/>
                     }
                 </FormLayout>
