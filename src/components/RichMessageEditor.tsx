@@ -1,18 +1,18 @@
 'use client'
 
-import {RichTextEditor} from "@mantine/tiptap";
-import {useEditor} from "@tiptap/react";
-import {StarterKit} from "@tiptap/starter-kit";
-import {Link} from "@tiptap/extension-link";
-import {Underline} from "@tiptap/extension-underline";
-import {Placeholder} from "@tiptap/extension-placeholder";
-import {CharacterCount} from "@tiptap/extension-character-count";
-import {NodeHtmlMarkdown} from "node-html-markdown";
-import {UseFormReturnType} from "@mantine/form";
-import {ActionIcon, Flex, Popover, Stack, Text} from "@mantine/core";
-import {IconInfoSquare} from "@tabler/icons-react";
-import {useDisclosure} from "@mantine/hooks";
-import {useEffect} from "react";
+import { RichTextEditor } from "@mantine/tiptap";
+import { useEditor } from "@tiptap/react";
+import { StarterKit } from "@tiptap/starter-kit";
+import { Link } from "@tiptap/extension-link";
+import { Underline } from "@tiptap/extension-underline";
+import { Placeholder } from "@tiptap/extension-placeholder";
+import { CharacterCount } from "@tiptap/extension-character-count";
+import { NodeHtmlMarkdown } from "node-html-markdown";
+import { UseFormReturnType } from "@mantine/form";
+import { ActionIcon, Flex, Popover, Stack, Text } from "@mantine/core";
+import { IconInfoSquare } from "@tabler/icons-react";
+import { useDisclosure } from "@mantine/hooks";
+import { useEffect } from "react";
 
 type Props<R = any> = {
     form: UseFormReturnType<R>,
@@ -34,22 +34,22 @@ export default function RichMessageEditor<
       disable = false,
       format = 'md'
   }: Props<T>) {
-    const [openedPopover, {close: closePopover, open: openPopover}] = useDisclosure(false);
+    const [openedPopover, { close: closePopover, open: openPopover }] = useDisclosure(false);
 
     const editor = useEditor({
         content: form.values[contentProperty],
         immediatelyRender: false,
         extensions: [
             StarterKit,
-            Link.configure({openOnClick: false}),
+            Link.configure({ openOnClick: false }),
             Underline,
-            Placeholder.configure({placeholder}),
+            Placeholder.configure({ placeholder }),
             CharacterCount.configure({
                 limit: characterLimit,
                 mode: 'textSize',
             })
         ],
-        onUpdate: ({editor}) => form.setFieldValue(
+        onUpdate: ({ editor }) => form.setFieldValue(
                 contentProperty,
                 //@ts-ignore
                 format === 'md' ? NodeHtmlMarkdown.translate(editor.getHTML()) : editor.getHTML(),
@@ -60,10 +60,10 @@ export default function RichMessageEditor<
         editor?.setEditable(!disable)
     }, [disable]);
 
-    return <Stack gap={2}>
+    return <Stack gap={ 2 }>
         <RichTextEditor
-                editor={editor}
-                labels={{
+                editor={ editor }
+                labels={ {
                     linkEditorSave: 'Вставить',
                     linkEditorExternalLink: 'Открывать в новой вкладке',
                     linkEditorInternalLink: 'Открывать в той же вкладке',
@@ -76,7 +76,7 @@ export default function RichMessageEditor<
                     strikeControlLabel: 'Зачёркнутый',
                     clearFormattingControlLabel: 'Очистить стиль',
                     codeControlLabel: 'Код (однострочный)'
-                }}
+                } }
         >
             <RichTextEditor.Toolbar>
                 <RichTextEditor.ControlsGroup>
@@ -96,29 +96,29 @@ export default function RichMessageEditor<
 
             <RichTextEditor.Content/>
         </RichTextEditor>
-        <Flex justify={'space-between'} my={2}>
+        <Flex justify={ 'space-between' } my={ 2 }>
             <Popover position="top-start"
-                     offset={4}
-                     opened={openedPopover}
+                     offset={ 4 }
+                     opened={ openedPopover }
             >
-                <Popover.Dropdown style={{pointerEvents: 'none'}} bg={'dark'} c={'white'} p={'xs'}>
+                <Popover.Dropdown style={ { pointerEvents: 'none' } } bg={ 'dark' } c={ 'white' } p={ 'xs' }>
                     <Text size="sm">Shift + Enter - перенос на новую строку</Text>
                     <Text size="sm">Enter - новый абзац</Text>
                 </Popover.Dropdown>
                 <Popover.Target>
-                    <ActionIcon onMouseEnter={openPopover} onMouseLeave={closePopover} variant={'subtle'}
-                                size={'sm'} color={'gray'}>
-                        <IconInfoSquare size={'1em'} stroke={1}/>
+                    <ActionIcon onMouseEnter={ openPopover } onMouseLeave={ closePopover } variant={ 'subtle' }
+                                size={ 'sm' } color={ 'gray' }>
+                        <IconInfoSquare size={ '1em' } stroke={ 1 }/>
                     </ActionIcon>
                 </Popover.Target>
             </Popover>
-            <Text size={'sm'}
-                  c={editor?.storage.characterCount.characters() > (characterLimit - characterLimit * 0.05)
-                          ? editor?.storage.characterCount.characters() === characterLimit ? 'red' : 'red.4'
-                          : 'gray.5'}
+            { editor && <Text size={ 'sm' }
+                              c={ editor.storage.characterCount.characters() > (characterLimit - characterLimit * 0.05)
+                                      ? editor.storage.characterCount.characters() === characterLimit ? 'red' : 'red.4'
+                                      : 'gray.5' }
             >
-                {editor?.storage.characterCount.characters()}/{characterLimit}
-            </Text>
+                { editor.storage.characterCount.characters() }/{ characterLimit }
+            </Text> }
         </Flex>
     </Stack>
 }

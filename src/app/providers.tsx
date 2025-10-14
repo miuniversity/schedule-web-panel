@@ -39,7 +39,7 @@ export function Providers({ children }: PropsWithChildren) {
                 defaultRadius: 'xs',
             } }>
                 <ModalsProvider>
-                    <DatesProvider settings={ { locale: 'ru', timezone: 'Europe/Moscow' } }>
+                    <DatesProvider settings={ { locale: 'ru' } }>
                         <SessionProvider>
                             {/*<TelegramProvider>*/ }
                             <SWRConfig value={ {

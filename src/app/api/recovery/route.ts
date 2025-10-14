@@ -8,7 +8,7 @@ import {render} from "@react-email/render";
 import EmailRecovery from "../../../../emails/EmailRecovery";
 
 const recoveryPostSchema = z.object({
-    email: z.string().email()
+    email: z.email()
 })
 
 const recoveryPatchSchema = z.object({
@@ -42,10 +42,10 @@ export async function GET(req: Request) {
         return NextResponse.json({status: 'OK', email: existingRecovery.profile.email}, {status: 200})
     } catch (e) {
         if (e instanceof ZodError) {
-            const message = e.errors.map(e => e.message).join(', ')
+            const message = e.issues.map(e => e.message).join(', ')
             return NextResponse.json({message}, {status: 400})
         }
-        return NextResponse.json({message: 'Что-то пошло не так', errors: (e as ZodError)?.errors}, {status: 500})
+        return NextResponse.json({message: 'Что-то пошло не так', errors: (e as ZodError)?.issues}, {status: 500})
     }
 }
 
@@ -81,7 +81,7 @@ export async function POST(req: Request) {
         return NextResponse.json({message: 'Запрос отправлен'}, {status: 201})
     } catch (e) {
         if (e instanceof ZodError) {
-            const message = e.errors.map(e => e.message).join(', ')
+            const message = e.issues.map(e => e.message).join(', ')
             return NextResponse.json({message}, {status: 400})
         }
 
@@ -89,7 +89,7 @@ export async function POST(req: Request) {
             console.error(e)
         }
 
-        return NextResponse.json({message: 'Что-то пошло не так', errors: (e as ZodError)?.errors}, {status: 500})
+        return NextResponse.json({message: 'Что-то пошло не так', errors: (e as ZodError)?.issues}, {status: 500})
     }
 }
 
@@ -123,9 +123,9 @@ export async function PATCH(req: Request) {
         return NextResponse.json({message: 'Пароль успешно изменен'}, {status: 200})
     } catch (e) {
         if (e instanceof ZodError) {
-            const message = e.errors.map(e => e.message).join(', ')
+            const message = e.issues.map(e => e.message).join(', ')
             return NextResponse.json({message}, {status: 400})
         }
-        return NextResponse.json({message: 'Что-то пошло не так', errors: (e as ZodError)?.errors}, {status: 500})
+        return NextResponse.json({message: 'Что-то пошло не так', errors: (e as ZodError)?.issues}, {status: 500})
     }
 }

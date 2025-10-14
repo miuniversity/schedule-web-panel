@@ -8,7 +8,7 @@ import db from "@/lib/db";
 import checkSession from "@/utils/checkSession";
 
 const newUserSchema = z.object({
-    email: z.string().email(),
+    email: z.email(),
 })
 
 export async function POST(req: Request) {
