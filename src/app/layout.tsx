@@ -6,29 +6,30 @@ import '@mantine/notifications/styles.css';
 import '@mantine/dates/styles.css'
 import '@mantine/charts/styles.css';
 
-import {ColorSchemeScript} from '@mantine/core';
-import {PropsWithChildren, Suspense} from "react";
-import {Providers} from "@/app/providers";
-import {NotifyAnywhereLayout} from "@/layouts";
+import { Metadata } from "next";
+import { PropsWithChildren, Suspense } from "react";
+import { ColorSchemeScript } from '@mantine/core';
+import { Providers } from "@/app/providers";
+import { NotifyAnywhereLayout } from "@/layouts";
 
-export const metadata = {
+export const metadata: Metadata = {
     title: 'Панель управления рассылкой',
 };
 
 
-export default async function RootLayout({children}: PropsWithChildren) {
+export default async function RootLayout({ children }: PropsWithChildren) {
 
     return (
-            <html lang="ru">
+            <html lang="ru" data-mantine-color-scheme="light">
             <head>
-                <meta name={'author'} content={'danyatochkaru'}/>
-                <ColorSchemeScript defaultColorScheme={'light'}/>
+                <meta name={ 'author' } content={ 'danyatochkaru' }/>
+                <ColorSchemeScript defaultColorScheme={ 'light' }/>
             </head>
             <body>
             <Providers>
-                <Suspense fallback={'Загрузка...'}>
+                <Suspense fallback={ 'Загрузка...' }>
                     <NotifyAnywhereLayout>
-                        {children}
+                        { children }
                     </NotifyAnywhereLayout>
                 </Suspense>
             </Providers>
