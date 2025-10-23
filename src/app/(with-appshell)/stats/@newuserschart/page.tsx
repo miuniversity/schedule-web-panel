@@ -137,7 +137,7 @@ export default async function NewUsersChartPage(props: Props) {
                             ? [
                                 {
                                     y: avgValue,
-                                    label: `Среднее значение - ${ avgValue }`,
+                                    label: `Среднее значение - ${ avgValue.toFixed(1) }`,
                                     color: 'red'
                                 }
                             ]
