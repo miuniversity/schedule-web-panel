@@ -26,7 +26,9 @@ export default async function NewMessagePage(props: { searchParams: Promise<{ st
             } catch (error) {
                 console.error(error)
             } finally {
-                console.debug(groups.length)
+                if (!groups.length) {
+                    groups = GROUPS
+                }
             }
             return <Suspense fallback={ <LoadingNewMessage/> }>
                 <FilteringModule groups={ groups }/>
