@@ -1,7 +1,7 @@
+import { Suspense } from "react";
 import LoadingNewMessage from "@/app/(with-appshell)/messages/new/loading";
 import PrintingModule from "@/components/messages/printing/PrintingModule"
 import FilteringModule from "@/components/messages/filtering/FilteringModule"
-import { Suspense } from "react";
 import { GROUPS } from "@/constants/groups";
 
 export default async function NewMessagePage(props: { searchParams: Promise<{ step?: string }> }) {
@@ -20,7 +20,7 @@ export default async function NewMessagePage(props: { searchParams: Promise<{ st
                     },
                     cache: 'force-cache'
                 })
-                if (groupsResponse.ok) {
+                if (groupsResponse.ok && groupsResponse.headers.get('content-type')?.startsWith('application/json')) {
                     groups = await groupsResponse.json()
                 }
             } catch (error) {
